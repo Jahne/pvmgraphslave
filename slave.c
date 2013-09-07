@@ -36,7 +36,6 @@ void recvInitData(int ip) {
 
 	pvm_upkint(&max, 1, 1);
 	pvm_upkint(&infinite, 1, 1);
-	pvm_upkint(&startVertex, 1, 1);
 
 	cost = malloc(sizeof *cost * max);
 
@@ -72,7 +71,8 @@ int main() {
 	if (PvmNoParent == (parentId = pvm_parent())) {
 		printf("Program ten powinien być uruchomiony z programu głównego!");
 	} else {
-
+		int suma= 0;
+		double totalTime = 0, computingTime, startTime = 0;
 		//odebranie tablicy grafu i inicjalizacja wszystkich potrzebnych zmiennych
 		recvInitData(parentId);
 		int *preced = (int *) malloc(sizeof(int) * max);
@@ -98,14 +98,15 @@ int main() {
 			for (i = 0; i < max; i++)
 				suma += distance[i];
 
-			printf("suma= %d", suma);
+			printf("pid= %d, suma= %d, ", myId, suma);
 			printf("computingTime = %f", computingTime);
 
 			totalTime = getTime() - startTime;
-			printf("totalTime= %f", totalTime);
+			printf("totalTime= %f\n", totalTime);
 
 			//wysylanie wynikow
 			pvm_initsend(PvmDataDefault);
+			pvm_pkint(&startVertex, 1, 1);
 			pvm_pkint(&suma, 1, 1);
 			pvm_pkdouble(&computingTime, 1, 1);
 			pvm_pkdouble(&totalTime, 1, 1);
