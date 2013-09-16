@@ -9,6 +9,7 @@ int **cost; //graf
 int max; //liczba wierzcholkow grafu
 int infinite; //oznacza brak powiazania
 int startVertex; //wierzcholek startowy
+int *graph;
 
 double getTime() {
 	struct timeval t;
@@ -37,19 +38,8 @@ void recvInitData(int ip) {
 	pvm_upkint(&max, 1, 1);
 	pvm_upkint(&infinite, 1, 1);
 
-	cost = malloc(sizeof *cost * max);
-
-	if (cost) {
-		int i;
-		for (i = 0; i < max; i++) {
-			cost[i] = malloc(sizeof *cost[i] * max);
-		}
-	}
-
-	int i;
-	for (i = 0; i < max; i++)
-		pvm_upkint(&cost[i][0], max, 1);
-
+	graph = malloc(max * max * sizeof(int));
+	pvm_upkint(graph, max * max, 1);
 }
 
 int recvStartVertex(int ip) {
@@ -59,6 +49,54 @@ int recvStartVertex(int ip) {
 	pvm_upkint(&startVertex, 1, 1);
 
 	return startVertex;
+}
+
+void rewrideArrays(int length) {
+	int i, j = 0;
+
+	cost = malloc(sizeof *cost * length);
+
+	if (cost) {
+		for (i = 0; i < length; i++) {
+			cost[i] = malloc(sizeof *cost[i] * length);
+		}
+	}
+
+	for (i = 0; i < length; i++) {
+		for (j = 0; j < length; j++) {
+			cost[i][j] = graph[i * (length - 1) + j];
+		}
+	}
+
+	free(graph);
+}
+
+void printGraph(int max) {
+	int i, j = 0;
+
+	puts("graf graph");
+	for (i = 0; i < max; i++) {
+		for (j = 0; j < max; j++) {
+			printf(" %d,", graph[i * (max - 1) + j]);
+		}
+		printf("\n");
+	}
+
+	for (i = 0; i < max * max; i++) {
+		printf(" %d,", graph[i]);
+	}
+}
+
+void printGraph2(int max) {
+	int i, j = 0;
+
+	puts("graf cost");
+	for (i = 0; i < max; i++) {
+		for (j = 0; j < max; j++) {
+			printf(" %d,", cost[i][j]);
+		}
+		printf("\n");
+	}
 }
 
 int main() {
@@ -71,26 +109,35 @@ int main() {
 	if (PvmNoParent == (parentId = pvm_parent())) {
 		printf("Program ten powinien być uruchomiony z programu głównego!");
 	} else {
-		int suma= 0;
+		int suma = 0;
 		double totalTime = 0, computingTime, startTime = 0;
 		//odebranie tablicy grafu i inicjalizacja wszystkich potrzebnych zmiennych
+		printf("odbieram graf");
 		recvInitData(parentId);
-		int *preced = (int *) malloc(sizeof(int) * max);
-		int *distance = (int *) malloc(sizeof(int) * max);
+		printf("odebralem graf");
+		printGraph(max);
+		rewrideArrays(max);
+		int *preced;
+		int *distance;
+		preced = malloc(max * sizeof(int));
+		distance = malloc(max * sizeof(int));
 
 		while (1) {
-			int suma= 0;
+			int suma = 0;
 			double totalTime = 0, computingTime, startTime = 0;
-			memset(preced, 0, sizeof(*preced) * max);
-			memset(distance, 0, sizeof(*distance) * max);
+
+			memset(preced, 0, sizeof(int) * max);
+			memset(distance, 0, sizeof(int) * max);
 
 			startTime = getTime();
 			startVertex = recvStartVertex(parentId);
-			if(startVertex < 0)
+			if (startVertex < 0)
 				break;
 
 			computingTime = getTime();
+			puts("wyznaczam sume najkrotszych sciezek");
 			shortpath(cost, max, startVertex, infinite, preced, distance);
+			puts("wyznaczone sumy");
 			computingTime = getTime() - computingTime;
 
 			//zliczanie sumy najkrotszych sciezek z danego wierzcholka

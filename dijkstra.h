@@ -6,7 +6,7 @@ int allselected(int *selected, int max) {
 	return 1;
 }
 
-void shortpath(int* cost[], int max, int startVertex, int infinite, int *preced, int *distance) {
+void shortpath(int **cost, int max, int startVertex, int infinite, int *preced, int *distance) {
 
 	int *selected = (int *) malloc(sizeof(int) * max);
 	memset(selected, 0, sizeof(*selected) * max);
