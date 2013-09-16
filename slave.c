@@ -101,10 +101,10 @@ void printGraph2(int max) {
 
 int main() {
 	int myId, parentId;
-	pvm_catchout(stdout);
+//	pvm_catchout(stdout);
 
 	myId = pvm_mytid();
-	printf("[%x] startuje\n", myId);
+//	printf("[%x] startuje\n", myId);
 
 	if (PvmNoParent == (parentId = pvm_parent())) {
 		printf("Program ten powinien być uruchomiony z programu głównego!");
@@ -112,10 +112,10 @@ int main() {
 		int suma = 0;
 		double totalTime = 0, computingTime, startTime = 0;
 		//odebranie tablicy grafu i inicjalizacja wszystkich potrzebnych zmiennych
-		printf("odbieram graf");
+//		printf("odbieram graf");
 		recvInitData(parentId);
-		printf("odebralem graf");
-		printGraph(max);
+//		printf("odebralem graf");
+//		printGraph(max);
 		rewrideArrays(max);
 		int *preced;
 		int *distance;
@@ -135,9 +135,9 @@ int main() {
 				break;
 
 			computingTime = getTime();
-			puts("wyznaczam sume najkrotszych sciezek");
+//			puts("wyznaczam sume najkrotszych sciezek");
 			shortpath(cost, max, startVertex, infinite, preced, distance);
-			puts("wyznaczone sumy");
+//			puts("wyznaczone sumy");
 			computingTime = getTime() - computingTime;
 
 			//zliczanie sumy najkrotszych sciezek z danego wierzcholka
@@ -145,11 +145,11 @@ int main() {
 			for (i = 0; i < max; i++)
 				suma += distance[i];
 
-			printf("pid= %d, suma= %d, ", myId, suma);
-			printf("computingTime = %f", computingTime);
+//			printf("pid= %d, suma= %d, ", myId, suma);
+//			printf("computingTime = %f", computingTime);
 
 			totalTime = getTime() - startTime;
-			printf("totalTime= %f\n", totalTime);
+//			printf("totalTime= %f\n", totalTime);
 
 			//wysylanie wynikow
 			pvm_initsend(PvmDataDefault);
